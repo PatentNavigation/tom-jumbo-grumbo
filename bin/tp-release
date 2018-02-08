@@ -7,9 +7,15 @@ const getChangelog = require('../lib/get-changelog');
 if (!process.env.RELEASE_ANY_BRANCH) {
   let branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
   if (branch !== 'master') {
-    console.error('You must be on master to release');
+    console.error('\nYou must be on master to release\n');
     process.exit(1);
   }
+}
+
+let tagMessage = buildTagMessage();
+if (!tagMessage) {
+  console.error('No changes to release');
+  process.exit(1);
 }
 
 // in case pre-commit hook to prevent committing to master is in place
@@ -20,20 +26,7 @@ gitRelease(undefined, undefined, undefined, function(err) {
     console.error(err.message);
     process.exit(1);
   } else {
-    let tagLines = execSync('git tag -l --sort v:refname').toString().trim().split('\n');
-    let tags = tagLines.filter((tag) => tag[0] === 'v');
-    let prevVersion = tags[tags.length - 2];
-    let newVersion = tags[tags.length - 1];
-
-    let changelog;
-    try {
-      changelog = getChangelog(prevVersion, newVersion);
-    } catch (e) {
-      console.error(e.message);
-      process.exit(1);
-    }
-
-    let tagMessage = changelog.map(({ pr, description }) => `- ${pr} ${description}`).join('\n');
+    let newVersion = getLastVersionTag();
     execSync(`git tag ${newVersion} ${newVersion} -f -m "${tagMessage}"`);
 
     let repo = execSync('git remote get-url origin').toString();
@@ -42,3 +35,21 @@ gitRelease(undefined, undefined, undefined, function(err) {
     console.log(tagMessage);
   }
 });
+
+function getLastVersionTag() {
+  let tagLines = execSync('git tag -l --sort v:refname').toString().trim().split('\n');
+  let tags = tagLines.filter((tag) => tag[0] === 'v');
+  return tags[tags.length - 1];
+}
+
+function buildTagMessage() {
+  let changelog;
+  try {
+    changelog = getChangelog(getLastVersionTag(), 'master');
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+
+  return changelog.map(({ pr, description }) => `- ${pr} ${description}`).join('\n');
+}

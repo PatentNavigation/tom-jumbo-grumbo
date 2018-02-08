@@ -7,7 +7,7 @@
   },
   "bin": {
     "get-changelog": "./bin/get-changelog",
-    "release": "./bin/tp-release"
+    "tp-release": "./bin/tp-release"
   },
   "devDependencies": {
     "eslint": "^4.17.0",

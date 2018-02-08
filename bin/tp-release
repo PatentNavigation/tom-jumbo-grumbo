@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const gitRelease = require('git-release');
 const getChangelog = require('../lib/get-changelog');
 
-if (!process.ENV.RELEASE_ANY_BRANCH) {
+if (!process.env.RELEASE_ANY_BRANCH) {
   let branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
   if (branch !== 'master') {
     console.error('You must be on master to release');

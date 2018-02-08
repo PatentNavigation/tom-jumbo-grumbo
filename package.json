@@ -1,0 +1,20 @@
+{
+  "name": "tom-jumbo-grumbo",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "bin": {
+    "get-changelog": "./bin/get-changelog",
+    "release": "./bin/tp-release"
+  },
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-plugin-turbopatent": "^3.0.1"
+  },
+  "dependencies": {
+    "git-release": "^0.6.0",
+    "minimist": "^1.2.0"
+  }
+}

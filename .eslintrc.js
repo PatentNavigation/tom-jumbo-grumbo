@@ -13,6 +13,9 @@ module.exports = {
   rules: {
     'no-console': 'off'
   },
+  globals: {
+    'Promise': true
+  },
   overrides: [
     {
       files: [ 'bin/*' ],

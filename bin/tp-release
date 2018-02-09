@@ -25,22 +25,28 @@ const colors = require('colors/safe');
     console.log('Generating release notes...');
     let releaseNotes = await buildReleaseNotes();
 
-    if (!releaseNotes) {
-      if (!await ask('No PR merge commits found. Release with empty changelog?')) {
+    if (releaseNotes) {
+      if (!await ask(`Release notes:\n\n${releaseNotes}\n\nDo these look correct? [y]`, true)) {
+        process.exit(1);
+      }
+    } else {
+      if (!await ask('No PR merge commits found. Release with empty changelog? [n]')) {
         process.exit(1);
       }
     }
+
+    // Get all this up front so if something goes wrong we bail before modifying
+    // anything in the repo
+    let repo = execSync('git remote get-url origin').toString().trim();
+    // Extract <owner>/<repo> from git URL
+    let [ , path ] = /([^:/]+\/[^:/]+)\.git$/.exec(repo);
+    let repoUrl = `https://github.com/${path}`;
+    let { githubAccessToken } = getConfig();
 
     console.log('Creating tag...');
     await gitRelease();
 
     let tagName = getLastVersionTag();
-    let repo = execSync('git remote get-url origin').toString().trim();
-    // Extract <owner>/<repo> from git URL
-    let [ , path ] = /([^:/]+\/[^:/]+)\.git$/.exec(repo);
-    let repoUrl = `https://github.com/${path}`;
-
-    let { githubAccessToken } = getConfig();
     if (githubAccessToken) {
       console.log('Creating release...');
       let apiUrl = `https://api.github.com/repos/${path}/releases`;
@@ -61,8 +67,7 @@ const colors = require('colors/safe');
         json: true
       });
 
-      console.log(`\nVersion tagged! Changelog generated in ${repoUrl}/releases/tag/${tagName}:\n`);
-      console.log(releaseNotes);
+      console.log(`\nVersion released!`);
     } else {
       console.log(`\nVersion tagged! Now paste changelog into ${repoUrl}/releases/edit/${tagName}:\n\n${releaseNotes}"`);
       const readmeUrl = 'https://github.com/PatentNavigation/tom-jumbo-grumbo/blob/master/README.md#github-api-access';
@@ -99,7 +104,7 @@ async function buildReleaseNotes() {
   if (lastTag) {
     return build(lastTag);
   } else {
-    if (!await ask('No previous version found. Is this the first release?')) {
+    if (!await ask('No previous version found. Is this the first release? [n]')) {
       process.exit(1);
     }
 
@@ -146,9 +151,9 @@ function promisify(fn) {
 // Promise-friendly ask wrapper -- it doesn't use the normal node callback
 // format, so we can't use promisify().
 //
-function ask(message) {
+function ask(message, defaultValue = false) {
   return new Promise((resolve, reject) => {
-    yesno.ask(message, false, resolve);
+    yesno.ask(message, defaultValue, resolve);
   });
 }
 

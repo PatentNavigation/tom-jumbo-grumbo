@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "release": "./bin/tp-release"
   },
   "bin": {
     "get-changelog": "./bin/get-changelog",

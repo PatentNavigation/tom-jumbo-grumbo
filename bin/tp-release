@@ -39,7 +39,11 @@ const colors = require('colors/safe');
     // anything in the repo
     let repo = execSync('git remote get-url origin').toString().trim();
     // Extract <owner>/<repo> from git URL
-    let [ , path ] = /([^:/]+\/[^:/]+)\.git$/.exec(repo);
+    let match = /([^:/]+\/[^:/.]+)(\.git)?$/.exec(repo);
+    if (!match) {
+      throw new Error(`Unable to parse repo origin URL: ${repo}`);
+    }
+    let [ , path ] = match;
     let repoUrl = `https://github.com/${path}`;
     let { githubAccessToken } = getConfig();
 

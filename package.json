@@ -11,7 +11,7 @@
     "tp-release": "./bin/tp-release"
   },
   "devDependencies": {
-    "eslint": "^4.17.0",
+    "eslint": "^4.18.2",
     "eslint-plugin-turbopatent": "^3.0.1"
   },
   "dependencies": {

@@ -4,7 +4,16 @@ Package for releasing `node.js` projects to GitHub.
 
 ## Usage
 
-* `$ tp-release`
+`$ tp-release`
+ 
+ Runs full release:
+1. Generates release notes
+2. Increments package.json version, commits, creates version tag, and pushes to git
+3. Creates a new release on Github with release notes and tag version
+
+`$ tp-release --skip-tag`
+
+Runs the release but skips incrementing package.json version, committing, and creating version tag. Still creates release on Github with release notes.
 
 ## Github API access
 
